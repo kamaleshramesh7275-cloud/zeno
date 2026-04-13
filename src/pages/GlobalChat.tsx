@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { AnimatedWrapper } from '../components/AnimatedWrapper';
 import { useAuth } from '../context/AuthContext';
-import { useChat, Message } from '../context/ChatContext';
+import { useChat } from '../context/ChatContext';
+import type { Message } from '../context/ChatContext';
 import { Send, User as UserIcon } from 'lucide-react';
 
 export function GlobalChat() {
