@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { AnimatedWrapper } from '../components/AnimatedWrapper';
+import { useAnnouncement } from '../context/AnnouncementContext';
 import {
     Users, Activity, Bell, TrendingUp, UserCheck, MessageSquare, Send,
     BarChart3, Shield, Clock, BookOpen, Target, Award, Zap, Eye,
@@ -45,14 +46,16 @@ const MOCK_ACTIVITIES: ActivityLog[] = [
 export function AdminDashboard() {
     const [users] = useState<User[]>(MOCK_USERS);
     const [activities] = useState<ActivityLog[]>(MOCK_ACTIVITIES);
-    const [announcement, setAnnouncement] = useState('');
+    const [announcementMsg, setAnnouncementMsg] = useState('');
+    const { sendAnnouncement } = useAnnouncement();
     const [selectedFilter, setSelectedFilter] = useState<'all' | 'active' | 'inactive'>('all');
 
     const handleSendAnnouncement = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!announcement.trim()) return;
-        alert(`Announcement sent to all users: "${announcement}"`);
-        setAnnouncement('');
+        if (!announcementMsg.trim()) return;
+        sendAnnouncement(announcementMsg);
+        alert(`Announcement sent to all users: "${announcementMsg}"`);
+        setAnnouncementMsg('');
     };
 
     const filteredUsers = users.filter(u => {
@@ -336,8 +339,8 @@ export function AdminDashboard() {
                             <textarea
                                 placeholder="Type your announcement here... (e.g., 'Platform maintenance scheduled for tonight at 10 PM')"
                                 className="w-full h-40 rounded-xl border border-violet-300/30 bg-violet-500/5 backdrop-blur px-4 py-3 text-sm text-white ring-offset-background placeholder:text-violet-300/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400 focus-visible:border-transparent transition-all resize-none"
-                                value={announcement}
-                                onChange={(e) => setAnnouncement(e.target.value)}
+                                value={announcementMsg}
+                                onChange={(e) => setAnnouncementMsg(e.target.value)}
                             />
                         </div>
                         <div className="flex items-center justify-between">

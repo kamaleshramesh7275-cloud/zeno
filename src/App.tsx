@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import { AnnouncementProvider } from './context/AnnouncementContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { Layout } from './components/Layout';
 import { AdminLayout } from './components/AdminLayout';
@@ -23,48 +24,50 @@ import { Challenges } from './pages/Challenges';
 function App() {
   return (
     <AuthProvider>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/admin-login" element={<AdminLogin />} />
+      <AnnouncementProvider>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/admin-login" element={<AdminLogin />} />
 
-        {/* Student Routes with Sidebar */}
-        <Route
-          path="/app"
-          element={
-            <ProtectedRoute>
-              <Layout />
-            </ProtectedRoute>
-          }
-        >
-          <Route index element={<Navigate to="/app/dashboard" replace />} />
-          <Route path="dashboard" element={<Dashboard />} />
-          <Route path="pomodoro" element={<PomodoroPage />} />
-          <Route path="chat" element={<GlobalChat />} />
-          <Route path="partners" element={<Partners />} />
-          <Route path="session/:id" element={<Session />} />
-          <Route path="profile" element={<Profile />} />
-          <Route path="library" element={<Library />} />
-          <Route path="reminders" element={<Reminders />} />
-          <Route path="store" element={<Store />} />
-          <Route path="team" element={<TeamFormation />} />
-          <Route path="challenges" element={<Challenges />} />
-        </Route>
+          {/* Student Routes with Sidebar */}
+          <Route
+            path="/app"
+            element={
+              <ProtectedRoute>
+                <Layout />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<Navigate to="/app/dashboard" replace />} />
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="pomodoro" element={<PomodoroPage />} />
+            <Route path="chat" element={<GlobalChat />} />
+            <Route path="partners" element={<Partners />} />
+            <Route path="session/:id" element={<Session />} />
+            <Route path="profile" element={<Profile />} />
+            <Route path="library" element={<Library />} />
+            <Route path="reminders" element={<Reminders />} />
+            <Route path="store" element={<Store />} />
+            <Route path="team" element={<TeamFormation />} />
+            <Route path="challenges" element={<Challenges />} />
+          </Route>
 
-        {/* Admin Routes without Sidebar */}
-        <Route
-          path="/app/admin"
-          element={
-            <ProtectedRoute>
-              <AdminLayout />
-            </ProtectedRoute>
-          }
-        >
-          <Route index element={<Navigate to="/app/admin/dashboard" replace />} />
-          <Route path="dashboard" element={<AdminDashboard />} />
-        </Route>
-      </Routes>
+          {/* Admin Routes without Sidebar */}
+          <Route
+            path="/app/admin"
+            element={
+              <ProtectedRoute>
+                <AdminLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<Navigate to="/app/admin/dashboard" replace />} />
+            <Route path="dashboard" element={<AdminDashboard />} />
+          </Route>
+        </Routes>
+      </AnnouncementProvider>
     </AuthProvider>
   );
 }
