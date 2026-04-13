@@ -1,22 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { AnimatedWrapper } from '../components/AnimatedWrapper';
 import { useAuth } from '../context/AuthContext';
-import { Send } from 'lucide-react';
-
-interface Message {
-    id: number;
-    user: string;
-    text: string;
-    timestamp: Date;
-    isMe: boolean;
-}
+import { useChat, Message } from '../context/ChatContext';
+import { Send, User as UserIcon } from 'lucide-react';
 
 export function GlobalChat() {
     const { user } = useAuth();
-    const [messages, setMessages] = useState<Message[]>([
-        { id: 1, user: 'Alice', text: 'Has anyone started the Calculus assignment?', timestamp: new Date(Date.now() - 1000 * 60 * 5), isMe: false },
-        { id: 2, user: 'Bob', text: 'Yes, question 3 is tricky!', timestamp: new Date(Date.now() - 1000 * 60 * 2), isMe: false },
-    ]);
+    const { messages, sendMessage } = useChat();
     const [newMessage, setNewMessage] = useState('');
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -30,28 +20,8 @@ export function GlobalChat() {
         e.preventDefault();
         if (!newMessage.trim()) return;
 
-        const message: Message = {
-            id: Date.now(),
-            user: user?.name || 'Me',
-            text: newMessage,
-            timestamp: new Date(),
-            isMe: true,
-        };
-
-        setMessages([...messages, message]);
+        sendMessage(newMessage);
         setNewMessage('');
-
-        // Simulate reply
-        setTimeout(() => {
-            const reply: Message = {
-                id: Date.now() + 1,
-                user: 'System',
-                text: 'This is a mocked response to demonstrate the chat.',
-                timestamp: new Date(),
-                isMe: false,
-            };
-            setMessages(prev => [...prev, reply]);
-        }, 2000);
     };
 
     return (
@@ -78,7 +48,7 @@ export function GlobalChat() {
                             )}
                             <p className="text-sm">{msg.text}</p>
                             <p className="mt-1 text-xs opacity-50 text-right">
-                                {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                             </p>
                         </div>
                     </div>

@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { AnnouncementProvider } from './context/AnnouncementContext';
 import { StreakProvider } from './context/StreakContext';
+import { ChatProvider } from './context/ChatContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { Layout } from './components/Layout';
 import { AdminLayout } from './components/AdminLayout';
@@ -27,7 +28,8 @@ function App() {
     <AuthProvider>
       <AnnouncementProvider>
         <StreakProvider>
-          <Routes>
+          <ChatProvider>
+            <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
@@ -69,7 +71,8 @@ function App() {
               <Route path="dashboard" element={<AdminDashboard />} />
             </Route>
           </Routes>
-        </StreakProvider>
+        </ChatProvider>
+      </StreakProvider>
       </AnnouncementProvider>
     </AuthProvider>
   );
