@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, MessageSquare, Users, BookOpen, User, LogOut, Timer, ShoppingBag, Bell } from 'lucide-react';
+import { LayoutDashboard, MessageSquare, Users, BookOpen, User, LogOut, Timer, ShoppingBag, Bell, Target } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useAuth } from '../context/AuthContext';
 
@@ -11,6 +11,7 @@ const navigation = [
     { name: 'Study Partners', href: '/app/partners', icon: Users },
     { name: 'Library', href: '/app/library', icon: BookOpen },
     { name: 'Form Team', href: '/app/team', icon: Users },
+    { name: 'Daily Challenges', href: '/app/challenges', icon: Target },
     { name: 'Rewards Store', href: '/app/store', icon: ShoppingBag },
     { name: 'Profile', href: '/app/profile', icon: User },
 ];

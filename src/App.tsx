@@ -18,6 +18,7 @@ import { PomodoroPage } from './pages/PomodoroPage';
 import { Store } from './pages/Store';
 import { Reminders } from './pages/Reminders';
 import { TeamFormation } from './pages/TeamFormation';
+import { Challenges } from './pages/Challenges';
 
 function App() {
   return (
@@ -48,6 +49,7 @@ function App() {
           <Route path="reminders" element={<Reminders />} />
           <Route path="store" element={<Store />} />
           <Route path="team" element={<TeamFormation />} />
+          <Route path="challenges" element={<Challenges />} />
         </Route>
 
         {/* Admin Routes without Sidebar */}
