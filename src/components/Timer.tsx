@@ -1,13 +1,16 @@
 import { useState, useEffect, useRef } from "react";
 import { Play, Pause, RotateCcw } from "lucide-react";
+import { useStreak } from "../context/StreakContext";
 
 export const Timer = ({ initialMinutes = 25 }: { initialMinutes?: number }) => {
+    const { trackStudy } = useStreak();
     const [secondsLeft, setSecondsLeft] = useState(initialMinutes * 60);
     const [running, setRunning] = useState(false);
     const intervalRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     useEffect(() => {
         if (running) {
+            trackStudy();
             intervalRef.current = setInterval(() => {
                 setSecondsLeft((s) => (s > 0 ? s - 1 : 0));
             }, 1000);

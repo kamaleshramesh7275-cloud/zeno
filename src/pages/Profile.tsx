@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { AnimatedWrapper } from '../components/AnimatedWrapper';
 import { ScrollReveal } from '../components/ScrollReveal';
 import { useAuth } from '../context/AuthContext';
+import { useStreak } from '../context/StreakContext';
 import { Edit, Lock, Save, X, Award, BookOpen, Users, Clock, TrendingUp, Mail, Github, Linkedin, Twitter, Trophy, Star, Flame } from 'lucide-react';
 
 export function Profile() {
     const { user } = useAuth();
+    const { streak } = useStreak();
     const [isEditing, setIsEditing] = useState(false);
     const [isChangingPassword, setIsChangingPassword] = useState(false);
     const [formData, setFormData] = useState({
@@ -48,7 +50,7 @@ export function Profile() {
         { label: 'Study Hours', value: '127', icon: Clock, color: 'text-cyan-400', bgColor: 'from-cyan-500/10 to-blue-500/10', borderColor: 'border-cyan-300/30' },
         { label: 'Resources Shared', value: '23', icon: BookOpen, color: 'text-purple-400', bgColor: 'from-purple-500/10 to-violet-500/10', borderColor: 'border-purple-300/30' },
         { label: 'Study Partners', value: '12', icon: Users, color: 'text-green-400', bgColor: 'from-green-500/10 to-emerald-500/10', borderColor: 'border-green-300/30' },
-        { label: 'Current Streak', value: '7', icon: Flame, color: 'text-orange-400', bgColor: 'from-orange-500/10 to-red-500/10', borderColor: 'border-orange-300/30' },
+        { label: 'Current Streak', value: streak.toString(), icon: Flame, color: 'text-orange-400', bgColor: 'from-orange-500/10 to-red-500/10', borderColor: 'border-orange-300/30' },
     ];
 
     return (

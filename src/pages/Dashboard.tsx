@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useStreak } from '../context/StreakContext';
 import { Bell, CheckSquare, Plus, Trash2, Flame, Calendar as CalendarIcon, TrendingUp, Target } from 'lucide-react';
 import { AnimatedWrapper } from '../components/AnimatedWrapper';
 import { Timer } from '../components/Timer';
@@ -8,12 +9,12 @@ import confetti from 'canvas-confetti';
 
 export function Dashboard() {
     const { user } = useAuth();
+    const { streak, studiedDays } = useStreak();
     const [todos, setTodos] = useState([
         { id: 1, text: 'Review Calculus notes', completed: false },
         { id: 2, text: 'Complete Physics assignment', completed: true },
     ]);
     const [newTodo, setNewTodo] = useState('');
-    const streak = 7;
 
     // Generate calendar data for current month
     const generateCalendar = () => {
@@ -35,7 +36,6 @@ export function Dashboard() {
 
     const calendar = generateCalendar();
     const today = new Date().getDate();
-    const studiedDays = [today, today - 1, today - 2, today - 3, today - 4, today - 5, today - 6];
 
     const addTodo = (e: React.FormEvent) => {
         e.preventDefault();
