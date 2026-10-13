@@ -22,6 +22,11 @@ import { Store } from './pages/Store';
 import { Reminders } from './pages/Reminders';
 import { TeamFormation } from './pages/TeamFormation';
 import { Challenges } from './pages/Challenges';
+import { TutorChat } from './pages/TutorChat';
+import { KnowledgeHub } from './pages/KnowledgeHub';
+import { Assessment } from './pages/Assessment';
+import { MasteryModel } from './pages/MasteryModel';
+import { EvaluationDashboard } from './pages/EvaluationDashboard';
 
 function App() {
   return (
@@ -44,7 +49,12 @@ function App() {
                 </ProtectedRoute>
               }
             >
-              <Route index element={<Navigate to="/app/dashboard" replace />} />
+              <Route index element={<Navigate to="/app/tutor" replace />} />
+              <Route path="tutor" element={<TutorChat />} />
+              <Route path="knowledge" element={<KnowledgeHub />} />
+              <Route path="assessment" element={<Assessment />} />
+              <Route path="mastery" element={<MasteryModel />} />
+              <Route path="evaluation" element={<EvaluationDashboard />} />
               <Route path="dashboard" element={<Dashboard />} />
               <Route path="pomodoro" element={<PomodoroPage />} />
               <Route path="chat" element={<GlobalChat />} />

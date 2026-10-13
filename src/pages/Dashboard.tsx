@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useStreak } from '../context/StreakContext';
-import { Bell, CheckSquare, Plus, Trash2, Flame, Calendar as CalendarIcon, TrendingUp, Target } from 'lucide-react';
+import { Bell, CheckSquare, Plus, Trash2, Flame, Calendar as CalendarIcon, TrendingUp, Target, Sparkles, BookOpen, ShieldCheck, Download, Zap } from 'lucide-react';
 import { AnimatedWrapper } from '../components/AnimatedWrapper';
 import { Timer } from '../components/Timer';
 import { ScrollReveal } from '../components/ScrollReveal';
+import { RevisionPackModal } from '../components/RevisionPackModal';
 import confetti from 'canvas-confetti';
 
 export function Dashboard() {
@@ -15,6 +17,7 @@ export function Dashboard() {
         { id: 2, text: 'Complete Physics assignment', completed: true },
     ]);
     const [newTodo, setNewTodo] = useState('');
+    const [isRevisionOpen, setIsRevisionOpen] = useState(false);
 
     // Generate calendar data for current month
     const generateCalendar = () => {
@@ -78,6 +81,46 @@ export function Dashboard() {
                     <Timer />
                 </div>
             </div>
+
+            {/* Track D: AI Cognitive Mastery & Exam Readiness Banner */}
+            <div className="relative overflow-hidden bg-gradient-to-r from-indigo-950 via-purple-950 to-slate-900 rounded-2xl p-6 border border-indigo-500/30 shadow-xl space-y-4">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                            <span className="px-2.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-xs font-semibold flex items-center gap-1">
+                                <Sparkles className="w-3.5 h-3.5" /> BKT Cognitive Health Index
+                            </span>
+                            <span className="text-xs text-slate-400 font-mono">MIT 18.06 Linear Algebra</span>
+                        </div>
+                        <h2 className="text-xl font-bold text-white">Course Syllabus Mastery: 68% (Practicing)</h2>
+                        <p className="text-xs text-slate-300">
+                            Targeted Weak Topic: <strong className="text-amber-400">Singular Value Decomposition (SVD)</strong>. Complete adaptive drills to reach 80% exam benchmark.
+                        </p>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-2.5">
+                        <button
+                            onClick={() => setIsRevisionOpen(true)}
+                            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-medium text-xs border border-slate-700 shadow-md transition-all"
+                        >
+                            <Download className="w-4 h-4 text-indigo-400" /> Export Revision Pack (PDF)
+                        </button>
+
+                        <Link
+                            to="/app/assessment"
+                            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-medium text-xs shadow-lg shadow-purple-500/30 transition-all hover:scale-105"
+                        >
+                            <Zap className="w-4 h-4 text-amber-300" /> Drill Weak Topics
+                        </Link>
+                    </div>
+                </div>
+            </div>
+
+            {/* Modal: Personalized Weak-Topic Revision Pack */}
+            <RevisionPackModal
+                isOpen={isRevisionOpen}
+                onClose={() => setIsRevisionOpen(false)}
+            />
 
             {/* Grid Layout for Streak, Activity, and Goals */}
             <div className="grid gap-6 md:grid-cols-3">

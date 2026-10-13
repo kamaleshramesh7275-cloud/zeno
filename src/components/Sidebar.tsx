@@ -1,9 +1,17 @@
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, MessageSquare, Users, BookOpen, User, LogOut, Timer, ShoppingBag, Bell, Target } from 'lucide-react';
+import { 
+    LayoutDashboard, MessageSquare, Users, BookOpen, User, LogOut, 
+    Timer, ShoppingBag, Bell, Target, Sparkles, ShieldCheck, GitBranch, BarChart3 
+} from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useAuth } from '../context/AuthContext';
 
 const navigation = [
+    { name: 'AI Tutor (Grounded)', href: '/app/tutor', icon: Sparkles },
+    { name: 'Knowledge Hub', href: '/app/knowledge', icon: BookOpen },
+    { name: 'Adaptive Assessment', href: '/app/assessment', icon: ShieldCheck },
+    { name: 'Mastery & Flow Map', href: '/app/mastery', icon: GitBranch },
+    { name: 'Evaluation Suite', href: '/app/evaluation', icon: BarChart3 },
     { name: 'Dashboard', href: '/app/dashboard', icon: LayoutDashboard },
     { name: 'Pomodoro Timer', href: '/app/pomodoro', icon: Timer },
     { name: 'Smart Reminders', href: '/app/reminders', icon: Bell },
