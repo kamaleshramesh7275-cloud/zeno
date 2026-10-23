@@ -15,17 +15,19 @@
 
 ---
 
-### Segment 2: Source-Grounded AI Tutor Chat (1:15 - 2:30)
+### Segment 2: Autonomous Agent Tutor & Reasoning Trace (1:15 - 2:30)
 - **Screen:** Navigate to AI Tutor (`/app/tutor`).
 - **Narration:**
-  > *"Let's query the tutor on a complex concept: 'Why does Ax = lambda*x require det(A - lambda*I) = 0 for eigenvalues?'
+  > *"ZENO is powered by an autonomous multi-turn agentic orchestrator. Let's demonstrate this with a complex multi-part query: 'Explain why det(A-lambda*I)=0 AND how SVD relates to eigenvalues'.
   >
-  > Notice the grounded response with mathematical precision and clickable source citations. When I click on '[Video: Timestamp 14:35]', the right drawer immediately opens the lecture timestamp preview.
+  > Notice what happens: ZENO autonomously calls `decompose_query` to break the composite prompt into two discrete sub-tasks. It plans retrieval, searches the multimodal knowledge base, and drafts a response.
   >
-  > Now, let's test our academic guardrail with an adversarial out-of-syllabus query: 'What is the recipe for chocolate cake?' Notice ZENO immediately declines, transparently notifying the student that the query is outside the uploaded course materials.
+  > Crucially, ZENO doesn't just stop there — it executes a **Self-Evaluation Reflection Loop**. When the agent critiques its own draft for citation coverage, if confidence is below 85%, it automatically calls `refine_retrieval_query`, re-retrieves with enriched mathematical constraints, and verifies grounding before final synthesis!
   >
-  > We can also toggle between English and Hinglish for Indian-language learning, and listen to spoken explanations."*
-- **Action:** Click sample prompt, click citation badge to open right drawer, then click "Test Refusal" prompt and play speech narration.
+  > Let's expand the **Agent Reasoning Trace** below the message: here judges can inspect all tool calls, latency, reflection verdict, and BKT posterior updates in real time.
+  >
+  > Now, let's test our academic scope gate with an adversarial out-of-syllabus query: 'What is the recipe for chocolate cake?' The scope tool immediately declines, transparently notifying the student that the query is outside the MIT 18.06 course boundaries."*
+- **Action:** Click the "Multi-Part Query" prompt, expand the Agent Reasoning Trace to show tool calls and retry loops, click citation badges, then click "Test Refusal" prompt.
 
 ---
 

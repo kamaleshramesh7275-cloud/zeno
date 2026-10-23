@@ -1,15 +1,16 @@
-import { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { AnimatedWrapper } from '../components/AnimatedWrapper';
-import { queryAITutor, playVoiceNarration } from '../lib/tutorService';
+import { queryAITutor, queryAITutorAsync, playVoiceNarration } from '../lib/tutorService';
 import { BENCHMARK_QUESTIONS } from '../data/courseData';
 import { evaluateAnswer } from '../lib/assessmentEngine';
 import { updateTopicMastery } from '../lib/bkt';
-import type { Citation, TutorMessage, RAGConfig, QuestionAttempt } from '../types/trackD';
+import type { Citation, TutorMessage, RAGConfig, QuestionAttempt, AgentTrace } from '../types/trackD';
 import { 
   Send, Sparkles, Volume2, ShieldAlert, BookOpen, 
   Video, Layers, FileText, Globe, CheckCircle2,
   Mic, MicOff, Sliders, Columns, Cpu, Check, Play,
-  HelpCircle
+  HelpCircle, ChevronDown, ChevronUp, Zap, Brain, Search,
+  Shield, GitMerge, Wand2, Activity, Split, RefreshCw
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -61,7 +62,6 @@ Click any citation badge to inspect the exact video timestamp or slide diagram. 
   const [drillAnswer, setDrillAnswer] = useState('');
   const [drillAttempt, setDrillAttempt] = useState<QuestionAttempt | null>(null);
 
-  // RAG Engine Sandbox Config (For AI Judges)
   const [ragConfig, setRagConfig] = useState<RAGConfig>({
     retrievalMode: 'hybrid',
     topK: 2,
@@ -69,6 +69,11 @@ Click any citation badge to inspect the exact video timestamp or slide diagram. 
     hallucinationGuardrail: 'strict',
     temperature: 0.2,
   });
+
+  // Agentic trace expanded state per message
+  const [expandedTraces, setExpandedTraces] = useState<Record<string, boolean>>({});
+  const toggleTrace = (msgId: string) =>
+    setExpandedTraces(prev => ({ ...prev, [msgId]: !prev[msgId] }));
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -80,7 +85,7 @@ Click any citation badge to inspect the exact video timestamp or slide diagram. 
     scrollToBottom();
   }, [messages, isTyping]);
 
-  const handleSendMessage = (textToSend?: string) => {
+  const handleSendMessage = async (textToSend?: string) => {
     const query = textToSend || inputQuery;
     if (!query.trim()) return;
 
@@ -95,14 +100,17 @@ Click any citation badge to inspect the exact video timestamp or slide diagram. 
     if (!textToSend) setInputQuery('');
     setIsTyping(true);
 
-    setTimeout(() => {
-      const response = queryAITutor(query, language, ragConfig);
+    try {
+      const response = await queryAITutorAsync(query, language, ragConfig);
       setMessages(prev => [...prev, response.message]);
       if (response.message.citations && response.message.citations.length > 0) {
         setSelectedCitation(response.message.citations[0]);
       }
+    } catch (err) {
+      console.error('Agent query error:', err);
+    } finally {
       setIsTyping(false);
-    }, 550);
+    }
   };
 
   // Browser Speech-to-Text handler
@@ -165,9 +173,10 @@ Click any citation badge to inspect the exact video timestamp or slide diagram. 
   };
 
   const samplePrompts = [
+    { label: '🧩 Multi-Part (Decomposition & Reflection Loop)', query: 'Explain why det(A-lambda*I)=0 AND how SVD relates to eigenvalues' },
     { label: '📐 Explain Eigenvalues (Video Anchor)', query: 'Why does Ax = lambda*x require det(A - lambda*I) = 0 for eigenvalues?' },
     { label: '🌀 SVD Intuition (Slide Anchor)', query: 'What is the geometric intuition of SVD A = U * Sigma * V^T?' },
-    { label: '⛔ Test Refusal (Off-Syllabus)', query: 'What is the recipe for chocolate cake?' },
+    { label: '⛔ Test Refusal (Off-Syllabus Gate)', query: 'What is the recipe for chocolate cake?' },
   ];
 
   // Helper to extract real YouTube embed url if available
@@ -395,13 +404,139 @@ Click any citation badge to inspect the exact video timestamp or slide diagram. 
                   </div>
                 )}
               </div>
+
+              {/* ── Agentic Reasoning Trace Panel (Hackathon Key Feature) ── */}
+              {msg.agentTrace && msg.sender === 'tutor' && (
+                <div className="mt-2 ml-1 w-full max-w-[88%]">
+                  <button
+                    onClick={() => toggleTrace(msg.id)}
+                    className="flex items-center gap-2 text-[11px] text-indigo-400 hover:text-indigo-300 font-mono font-semibold transition-colors mb-1"
+                  >
+                    <Activity className="w-3.5 h-3.5" />
+                    <span>Agent Reasoning Trace ({msg.agentTrace.steps.length} steps • {msg.agentTrace.totalDurationMs}ms • {msg.agentTrace.llmBackend})</span>
+                    {msg.agentTrace.retryCount !== undefined && msg.agentTrace.retryCount > 0 && (
+                      <span className="px-1.5 py-0.2 rounded-full bg-amber-950/80 border border-amber-500/40 text-[9px] text-amber-300 font-sans font-bold">
+                        🔄 Reflected &amp; Retried
+                      </span>
+                    )}
+                    {msg.agentTrace.subTasks && msg.agentTrace.subTasks.length > 0 && (
+                      <span className="px-1.5 py-0.2 rounded-full bg-cyan-950/80 border border-cyan-500/40 text-[9px] text-cyan-300 font-sans font-bold">
+                        🧩 Decomposed
+                      </span>
+                    )}
+                    {expandedTraces[msg.id] ? <ChevronUp className="w-3 h-3 ml-auto" /> : <ChevronDown className="w-3 h-3 ml-auto" />}
+                  </button>
+
+                  {expandedTraces[msg.id] && (
+                    <div className="bg-slate-950 border border-indigo-500/30 rounded-xl p-3 space-y-2 shadow-xl">
+                      <div className="flex flex-wrap items-center justify-between gap-2 text-[10px] font-mono text-slate-500 pb-1.5 border-b border-slate-800">
+                        <div className="flex items-center gap-2">
+                          <span>Session: {msg.agentTrace.sessionId}</span>
+                          <span className="px-1.5 py-0.5 rounded bg-indigo-950 text-indigo-300 border border-indigo-800/60 font-semibold">
+                            Autonomous Tool-Calling Engine
+                          </span>
+                        </div>
+                        <span className="flex items-center gap-1 text-indigo-400">
+                          <Brain className="w-3 h-3" /> {msg.agentTrace.llmBackend}
+                        </span>
+                      </div>
+
+                      {/* Sub-Tasks Preview if Decomposed */}
+                      {msg.agentTrace.subTasks && msg.agentTrace.subTasks.length > 0 && (
+                        <div className="p-2 rounded-lg bg-cyan-950/30 border border-cyan-500/30 text-[11px] text-cyan-200">
+                          <span className="font-bold flex items-center gap-1.5 text-cyan-400 mb-1">
+                            <Split className="w-3.5 h-3.5" /> Autonomous Task Decomposition ({msg.agentTrace.subTasks.length} sub-tasks):
+                          </span>
+                          <ol className="list-decimal list-inside space-y-0.5 text-[10px] text-slate-300">
+                            {msg.agentTrace.subTasks.map((st, i) => (
+                              <li key={i}>{st}</li>
+                            ))}
+                          </ol>
+                        </div>
+                      )}
+
+                      {msg.agentTrace.steps.map((step, si) => {
+                        const toolIcons: Record<string, React.ReactElement> = {
+                          INTENT_CLASSIFY: <Zap className="w-3 h-3" />,
+                          SCOPE_CHECK: <Shield className="w-3 h-3" />,
+                          DECOMPOSE_QUERY: <Split className="w-3 h-3" />,
+                          RETRIEVAL_PLAN: <GitMerge className="w-3 h-3" />,
+                          EXECUTE_RETRIEVAL: <Search className="w-3 h-3" />,
+                          GROUNDING_CHECK: <CheckCircle2 className="w-3 h-3" />,
+                          GENERATE: <Wand2 className="w-3 h-3" />,
+                          SELF_EVALUATE: <CheckCircle2 className="w-3 h-3" />,
+                          REFINE_QUERY: <RefreshCw className="w-3 h-3" />,
+                          SYNTHESIZE: <GitMerge className="w-3 h-3" />,
+                          BKT_UPDATE: <Activity className="w-3 h-3" />,
+                        };
+                        const statusColors: Record<string, string> = {
+                          done: 'text-emerald-400 bg-emerald-950/40 border-emerald-500/30',
+                          skipped: 'text-slate-500 bg-slate-900/40 border-slate-700/30',
+                          pending: 'text-yellow-400 bg-yellow-950/40 border-yellow-500/30',
+                          running: 'text-blue-400 bg-blue-950/40 border-blue-500/30',
+                        };
+                        return (
+                          <div key={si} className={`flex items-start gap-2.5 p-2 rounded-lg border text-[11px] ${statusColors[step.status]}`}>
+                            <div className="flex-shrink-0 mt-0.5">{toolIcons[step.tool] || <Activity className="w-3 h-3" />}</div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between gap-2">
+                                <div className="flex items-center gap-1.5 flex-wrap">
+                                  <span className="font-bold font-mono">[{step.tool}]</span>
+                                  {step.isFunctionCall && (
+                                    <span className="px-1.5 py-0.2 rounded text-[9px] font-mono bg-indigo-900/60 text-indigo-300 border border-indigo-700/40">
+                                      TOOL: {step.toolCallName || step.tool.toLowerCase()}
+                                    </span>
+                                  )}
+                                  {step.iteration && (
+                                    <span className="px-1.5 py-0.2 rounded text-[9px] font-mono bg-purple-950/60 text-purple-300">
+                                      Loop #{step.iteration}
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="flex items-center gap-2 text-[10px] opacity-70">
+                                  {step.durationMs !== undefined && step.durationMs > 0 && (
+                                    <span>{step.durationMs}ms</span>
+                                  )}
+                                  <span className="uppercase font-bold">{step.status}</span>
+                                </div>
+                              </div>
+                              <p className="text-[10px] opacity-90 mt-0.5 leading-relaxed">{step.detail}</p>
+                              {step.outputPreview && (
+                                <div className="mt-1 px-1.5 py-0.5 bg-black/40 rounded font-mono text-[9px] opacity-70 truncate">
+                                  → {step.outputPreview}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           ))}
 
           {isTyping && (
-            <div className="flex items-center gap-2 text-xs text-blue-400 bg-slate-950/60 p-3 rounded-xl max-w-xs border border-slate-800">
-              <Sparkles className="w-4 h-4 animate-spin text-indigo-400" />
-              <span>Synthesizing citation-grounded response...</span>
+            <div className="flex flex-col gap-2 max-w-sm">
+              <div className="flex items-center gap-2 text-xs text-blue-400 bg-slate-950/80 p-3 rounded-xl border border-blue-500/30 shadow-lg">
+                <Brain className="w-4 h-4 animate-spin text-indigo-400" />
+                <span className="font-mono font-bold text-indigo-300">Gemini Function Calling &amp; Reflection Loop...</span>
+              </div>
+              <div className="flex flex-col gap-1 px-2">
+                {[
+                  { icon: <Zap className="w-3 h-3" />, label: 'Intent Classification & Scope Gate', color: 'text-yellow-400' },
+                  { icon: <Split className="w-3 h-3" />, label: 'Task Decomposition (Multi-part Analysis)', color: 'text-cyan-400' },
+                  { icon: <Search className="w-3 h-3" />, label: 'Knowledge Base Multimodal Retrieval', color: 'text-blue-400' },
+                  { icon: <CheckCircle2 className="w-3 h-3" />, label: 'Self-Reflection Loop & Grounding Critique', color: 'text-emerald-400' },
+                  { icon: <Activity className="w-3 h-3" />, label: 'BKT Posterior Mastery State Update', color: 'text-purple-400' },
+                ].map((step, i) => (
+                  <div key={i} className="flex items-center gap-2 text-[10px] text-slate-400 animate-pulse" style={{ animationDelay: `${i * 140}ms` }}>
+                    <span className={step.color}>{step.icon}</span>
+                    <span>{step.label}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
           <div ref={messagesEndRef} />

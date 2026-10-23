@@ -1,5 +1,67 @@
 export type SourceType = 'textbook' | 'slide' | 'video';
 
+// ─── Agentic Reasoning Trace ───────────────────────────────────────────────
+
+export type AgentStepStatus = 'pending' | 'running' | 'done' | 'skipped';
+
+export type AgentStepTool =
+  | 'INTENT_CLASSIFY'
+  | 'SCOPE_CHECK'
+  | 'DECOMPOSE_QUERY'
+  | 'RETRIEVAL_PLAN'
+  | 'EXECUTE_RETRIEVAL'
+  | 'GENERATE'
+  | 'SELF_EVALUATE'
+  | 'REFINE_QUERY'
+  | 'SYNTHESIZE'
+  | 'GROUNDING_CHECK'
+  | 'BKT_UPDATE';
+
+export interface AgentStep {
+  tool: AgentStepTool;
+  label: string;
+  detail: string;
+  status: AgentStepStatus;
+  durationMs?: number;
+  outputPreview?: string;
+  toolCallName?: string;
+  toolArgs?: Record<string, unknown>;
+  toolResult?: Record<string, unknown> | string;
+  isFunctionCall?: boolean;
+  iteration?: number;
+}
+
+export interface AgentTrace {
+  sessionId: string;
+  query: string;
+  startedAt: Date;
+  steps: AgentStep[];
+  totalDurationMs: number;
+  llmBackend: 'gemini-2.0-flash' | 'gemini-1.5-pro' | 'mock-rag';
+  isAgenticLoop?: boolean;
+  toolCallCount?: number;
+  retryCount?: number;
+  subTasks?: string[];
+  reflectionVerdict?: 'passed_first_try' | 'refined_and_passed' | 'refusal';
+}
+
+// ─── Agent Session Log (persisted across pages) ────────────────────────────
+
+export interface AgentSessionLogEntry {
+  traceId: string;
+  timestamp: Date;
+  query: string;
+  stepsCompleted: number;
+  totalSteps: number;
+  llmBackend: string;
+  outcome: 'answered' | 'refused' | 'error';
+  faithfulnessScore?: number;
+  toolCallCount?: number;
+  retries?: number;
+  isAutonomous?: boolean;
+  subTasksCount?: number;
+}
+
 export interface SourceLocation {
   pageNumber?: number;
   slideNumber?: number;
@@ -71,6 +133,7 @@ export interface TutorMessage {
   language?: 'english' | 'hinglish';
   extractedConcepts?: string[];
   telemetry?: RetrievalTelemetry;
+  agentTrace?: AgentTrace; // Agentic reasoning trace for this response
 }
 
 export type QuestionType = 'mcq' | 'short_answer' | 'numerical';
